@@ -49,5 +49,84 @@ public class Tile : MonoBehaviour {
 		render.color = Color.white;
 		previousSelected = null;
 	}
+	void OnMouseDown()
+	{
+		// 1
+		if (render.sprite == null || BoardManager.instance.IsShifting)
+		{
+			return;
+		}
+
+		if (isSelected)
+		{ // 2 Is it already selected?
+			Deselect();
+		}
+		else
+		{
+			if (previousSelected == null)
+			{ // 3 Is it the first tile selected?
+				Select();
+			}
+			else
+			{
+				if (GetAllAdjacentTiles().Contains(previousSelected.gameObject))
+				{ // 1
+					SwapSprite(previousSelected.render); // 2
+					previousSelected.Deselect();
+				}
+				else
+				{ // 3
+					previousSelected.GetComponent<Tile>().Deselect();
+					Select();
+				}
+			}
+
+		}
+	}
+	public void SwapSprite(SpriteRenderer render2)
+	{ // 1
+		if (render.sprite == render2.sprite)
+		{ // 2
+			return;
+		}
+
+		Sprite tempSprite = render2.sprite; // 3
+		render2.sprite = render.sprite; // 4
+		render.sprite = tempSprite; // 5
+		SFXManager.instance.PlaySFX(Clip.Swap); // 6
+	}
+
+	private GameObject GetAdjacent(Vector2 castDir)
+	{
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
+		if (hit.collider != null)
+		{
+			return hit.collider.gameObject;
+		}
+		return null;
+	}
+
+	private List<GameObject> GetAllAdjacentTiles()
+	{
+		List<GameObject> adjacentTiles = new List<GameObject>();
+		for (int i = 0; i < adjacentDirections.Length; i++)
+		{
+			adjacentTiles.Add(GetAdjacent(adjacentDirections[i]));
+		}
+		return adjacentTiles;
+	}
+	private List<GameObject> FindMatch(Vector2 castDir)
+	{ // 1
+		List<GameObject> matchingTiles = new List<GameObject>(); // 2
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir); // 3
+		while (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().sprite == render.sprite)
+		{ // 4
+			matchingTiles.Add(hit.collider.gameObject);
+			hit = Physics2D.Raycast(hit.collider.transform.position, castDir);
+		}
+		return matchingTiles; // 5
+	}
+
+
 
 }
