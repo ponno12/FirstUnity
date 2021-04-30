@@ -1,0 +1,1 @@
+b70bd53acc024de6af150a7d469a3d9b|Assets/Plugins/arfoundation-samples/Scenes/ImageTracking/Images/QRCode.jpg|0.05
